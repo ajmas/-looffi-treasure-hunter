@@ -9,7 +9,7 @@
           <q-avatar rounded>
             <img
               v-if="foundTreasureItem.item && foundTreasureItem.item.image"
-              :src="foundTreasureItem.item.image"
+              :src="getImageUrl(foundTreasureItem.item.image)"
             />
           </q-avatar>
         </q-item-section>
@@ -127,6 +127,12 @@ export default defineComponent({
           this.quest
         );
       }
+    },
+    getImageUrl (imageUrl: string) {
+      if (imageUrl && imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
+        imageUrl = `${this.baseUrl}${imageUrl}`;
+      }
+      return imageUrl;
     },
     getText (text: i18nString) {
       return getText(text, this.$i18n.locale);
