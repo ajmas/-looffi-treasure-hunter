@@ -62,21 +62,27 @@ export default defineComponent({
   },
   components: { VueMarkdown },
   setup () {
-    const foundTreasureItems = ref<IFoundTreasureItem[]>([]);
-    const data = localStorage.getItem('foundTreasure');
-    if (data) {
-      foundTreasureItems.value = JSON.parse(data);
-    }
+    // const foundTreasureItems = ref<IFoundTreasureItem[]>([]);
+    // const data = localStorage.getItem('foundTreasure');
+    // if (data) {
+    //   foundTreasureItems.value = JSON.parse(data);
+    // }
     return {
       defaultLocale: 'en',
       quest: 'default',
-      foundTreasureItems,
+      foundTreasureItems: ref<IFoundTreasureItem[]>([]),
       clueDialogueVisible: ref<boolean>(false),
       clueText: ref<string | undefined>(undefined),
     };
   },
   async mounted () {
+    const data = localStorage.getItem('foundTreasure');
+    if (data) {
+      this.foundTreasureItems.value = JSON.parse(data);
+    }
+
     await this.loadTreasureItems();
+
     if (this.foundItemId) {
       const item = await this.loadTreasureItem(this.foundItemId, this.quest);
       if (item) {
@@ -90,6 +96,7 @@ export default defineComponent({
             time: new Date(),
             item,
           });
+
           localStorage.setItem(
             'foundTreasure',
             JSON.stringify(this.foundTreasureItems)
