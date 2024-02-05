@@ -72,6 +72,7 @@ module.exports = {
 
     'prefer-promise-reject-errors': 'off',
     'space-before-function-paren': 'error',
+    'comma-dangle': 'error',
 
     quotes: ['warn', 'single', { avoidEscape: true }],
 

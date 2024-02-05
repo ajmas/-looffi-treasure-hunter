@@ -10,15 +10,15 @@ const routes: RouteRecordRaw[] = [
       props: (route) => ({
         foundItemId: route.query.item
       })
-    }],
+    }]
   },
 
   // Always leave this as last one,
   // but you can also remove it
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
-  },
+    component: () => import('pages/ErrorNotFound.vue')
+  }
 ];
 
 export default routes;

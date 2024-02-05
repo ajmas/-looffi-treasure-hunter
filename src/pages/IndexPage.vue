@@ -58,7 +58,7 @@ import { getText } from '../utils/TextUtils';
 export default defineComponent({
   name: 'IndexPage',
   props: {
-    foundItemId: String,
+    foundItemId: String
   },
   components: { VueMarkdown },
   setup () {
@@ -68,11 +68,12 @@ export default defineComponent({
     //   foundTreasureItems.value = JSON.parse(data);
     // }
     return {
+      baseUrl: `${process.env.BASE_URL || ''}`,
       defaultLocale: 'en',
       quest: 'default',
       foundTreasureItems: ref<IFoundTreasureItem[]>([]),
       clueDialogueVisible: ref<boolean>(false),
-      clueText: ref<string | undefined>(undefined),
+      clueText: ref<string | undefined>(undefined)
     };
   },
   async mounted () {
@@ -94,7 +95,7 @@ export default defineComponent({
           this.foundTreasureItems.push({
             id: item.id,
             time: new Date(),
-            item,
+            item
           });
 
           localStorage.setItem(
@@ -109,7 +110,7 @@ export default defineComponent({
     async loadTreasureItem (id: string, quest = 'default'): ITreasureItem {
       try {
         const response = await this.$api.get(
-          `/quests/${quest}/treasures/${id}.json`
+          `${this.baseUrl}/quests/${quest}/treasures/${id}.json`
         );
         if (response.data) {
           return response.data as ITreasureItem;
@@ -138,7 +139,7 @@ export default defineComponent({
         this.clueText = foundItem?.item?.clue;
         this.clueDialogueVisible = true;
       }
-    },
-  },
+    }
+  }
 });
 </script>

@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-toolbar-title>
           <q-avatar>
-            <img src="/images/Treasure-Chest.512.png" />
+            <img :src="`${this.baseUrl}/images/Treasure-Chest.512.png`" />
           </q-avatar>
           Loofi Treasure Hunter
         </q-toolbar-title>
@@ -24,7 +24,9 @@ export default defineComponent({
   name: 'MainLayout',
 
   setup () {
-    return {};
-  },
+    return {
+      baseUrl: `${process.env.BASE_URL || ''}` as string
+    };
+  }
 });
 </script>
