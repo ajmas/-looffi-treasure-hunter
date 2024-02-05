@@ -1,0 +1,16 @@
+{
+  "id": "default",
+  "name": {
+    "en": "Default Quest [en]",
+    "fr": "Default Quest [fr]"
+  },
+  "description": {
+    "en": "Lorem ipsum, blah [en]",
+    "fr": "Lorem ipsum, blah [fr]"
+  },
+  "organiserName": {
+    "en": "Acme Sisters [en]",
+    "fr": "Acme Sisters [fr]"
+  },
+  "organiserUrl": ""
+}
