@@ -1,0 +1,16 @@
+{
+  "id": "7fcs0utax69",
+  "image": "/images/noface.png",
+  "backgroundColor": null,
+  "backgroundImage": null,
+  "outlineColor": null,
+  "style": "background: yellow",
+  "name": {
+    "en": "Ghibli & co [en]",
+    "fr": "Ghibli & cie [fr]"
+  },
+  "clue": {
+    "en": "Phasellus risus justo, gravida in posuere ut, finibus ut erat. Integer varius luctus nisl, in lacinia lectus semper eget. [en]\n\n ![image](https://assets.architecturaldigest.in/photos/600822c83a9d9570bc840f08/16:9/w_2240,c_limit/My-Neighbor-Totoro-Studio-Ghibli-theme-park-in-Japan-1366x768.jpg)",
+    "fr": "Phasellus risus justo, gravida in posuere ut, finibus ut erat. Integer varius luctus nisl, in lacinia lectus semper eget. [fr]\n\n ![image](https://assets.architecturaldigest.in/photos/600822c83a9d9570bc840f08/16:9/w_2240,c_limit/My-Neighbor-Totoro-Studio-Ghibli-theme-park-in-Japan-1366x768.jpg)"
+  }
+}

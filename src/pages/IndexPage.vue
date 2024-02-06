@@ -4,6 +4,7 @@
       <q-item
         v-for="foundTreasureItem in foundTreasureItems"
         :key="foundTreasureItem.id"
+        :style="foundTreasureItem?.item?.style"
       >
         <q-item-section avatar>
           <q-avatar rounded>
@@ -14,13 +15,16 @@
           </q-avatar>
         </q-item-section>
 
-        <q-item-section>
+        <q-item-section class="full-width">
           {{ getText(foundTreasureItem?.item.name) }}
         </q-item-section>
-        <q-item-section>
+        <q-item-section
+          style="display: flex; align-items: flex-end; justify-content: center"
+        >
           <q-btn
             v-if="foundTreasureItem?.item.clue"
             @click="onShowClue(foundTreasureItem.id)"
+            size="sm"
           >
             View Clue
           </q-btn>
@@ -37,7 +41,7 @@
           </q-btn>
         </q-bar>
         <q-card-section class="q-pa-md">
-          <VueMarkdown :source="getText(clueText)" />
+          <VueMarkdown :source="getText(clueText)" class="markdown-view" />
         </q-card-section>
         <q-card-section class="row justify-center items-center">
           <q-btn v-close-popup class="self-center" color="primary">Close</q-btn>
@@ -62,11 +66,6 @@ export default defineComponent({
   },
   components: { VueMarkdown },
   setup () {
-    // const foundTreasureItems = ref<IFoundTreasureItem[]>([]);
-    // const data = localStorage.getItem('foundTreasure');
-    // if (data) {
-    //   foundTreasureItems.value = JSON.parse(data);
-    // }
     return {
       baseUrl: `${process.env.BASE_URL || ''}`,
       defaultLocale: 'en',
@@ -76,56 +75,82 @@ export default defineComponent({
       clueText: ref<string | undefined>(undefined)
     };
   },
+  watch: {
+    async foundItemId () {
+      if (this.foundItemId) {
+        await this.addNewItem(this.quest, this.foundItemId);
+      }
+    }
+  },
   async mounted () {
-    const data = localStorage.getItem('foundTreasure');
+    const data = localStorage.getItem(`foundTreasure.${this.quest}`);
     if (data) {
-      this.foundTreasureItems.value = JSON.parse(data);
+      this.foundTreasureItems = JSON.parse(data);
     }
 
     await this.loadTreasureItems();
 
     if (this.foundItemId) {
-      const item = await this.loadTreasureItem(this.foundItemId, this.quest);
-      if (item) {
-        const exists = !!this.foundTreasureItems.find(
-          (foundItem) => foundItem.id === item.id
-        );
-
-        if (!exists) {
-          this.foundTreasureItems.push({
-            id: item.id,
-            time: new Date(),
-            item
-          });
-
-          localStorage.setItem(
-            'foundTreasure',
-            JSON.stringify(this.foundTreasureItems)
-          );
-        }
-      }
+      await this.addNewItem(this.quest, this.foundItemId);
     }
   },
   methods: {
-    async loadTreasureItem (id: string, quest = 'default'): ITreasureItem {
+    async loadTreasureItem (quest: string, itemId: string): ITreasureItem {
       try {
         const response = await this.$api.get(
-          `${this.baseUrl}/quests/${quest}/treasures/${id}.json`
+          `${this.baseUrl}/quests/${quest}/treasures/${itemId}.json`
         );
         if (response.data) {
-          return response.data as ITreasureItem;
+          const treasureItem = response.data as ITreasureItem;
+          if (treasureItem.clue !== 'string') {
+            const keys = Object.keys(treasureItem.clue);
+            keys.forEach((key) => {
+              treasureItem.clue[key] = treasureItem.clue[key].replace(
+                '![image](/',
+                `![image](${this.baseUrl}/`
+              );
+            });
+          }
+          return treasureItem;
         }
       } catch (error) {
         console.log('error', error);
       }
+      return undefined;
     },
     async loadTreasureItems (): ITreasureItem {
       const foundTreasureItems = this.foundTreasureItems || [];
       for (let i = 0; i < foundTreasureItems.length; i++) {
         foundTreasureItems[i].item = await this.loadTreasureItem(
-          foundTreasureItems[i].id,
-          this.quest
+          this.quest,
+          foundTreasureItems[i].id
         );
+      }
+    },
+    async addNewItem (questId: string, foundItemId: ITreasureItem) {
+      if (foundItemId) {
+        const item = await this.loadTreasureItem(questId, foundItemId);
+        if (item) {
+          const exists = !!this.foundTreasureItems.find(
+            (foundItem) => foundItem.id === item.id
+          );
+
+          if (!exists) {
+            console.log('XXX C', this.foundItemId);
+            this.foundTreasureItems.push({
+              id: item.id,
+              time: new Date(),
+              item
+            });
+
+            localStorage.setItem(
+              `foundTreasure.${questId}`,
+              JSON.stringify(this.foundTreasureItems)
+            );
+
+            this.$forceUpate();
+          }
+        }
       }
     },
     getImageUrl (imageUrl: string) {
@@ -138,12 +163,16 @@ export default defineComponent({
       return getText(text, this.$i18n.locale);
     },
     onShowClue (treasureId: string) {
-      const foundItem = this.foundTreasureItems.find(
-        (item) => item.id === treasureId
-      );
-      if (foundItem) {
-        this.clueText = foundItem?.item?.clue;
-        this.clueDialogueVisible = true;
+      try {
+        const foundItem = this.foundTreasureItems.find(
+          (item) => item.id === treasureId
+        );
+        if (foundItem) {
+          this.clueText = foundItem?.item?.clue;
+          this.clueDialogueVisible = true;
+        }
+      } catch (error) {
+        console.log('xxx', error);
       }
     }
   }
