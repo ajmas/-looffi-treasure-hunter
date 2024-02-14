@@ -4,7 +4,6 @@
       <q-item
         v-for="foundTreasureItem in foundTreasureItems"
         :key="foundTreasureItem.id"
-        :style="foundTreasureItem?.item?.style"
       >
         <q-item-section avatar>
           <q-avatar rounded>
@@ -16,32 +15,33 @@
         </q-item-section>
 
         <q-item-section class="full-width">
-          {{ getText(foundTreasureItem?.item.name) }}
+          {{ getText(foundTreasureItem?.item?.name) }}
         </q-item-section>
         <q-item-section
           style="display: flex; align-items: flex-end; justify-content: center"
         >
           <q-btn
-            v-if="foundTreasureItem?.item.clue"
+            v-if="foundTreasureItem?.item?.clue"
             @click="onShowClue(foundTreasureItem.id)"
             size="sm"
+            outline
           >
-            View Clue
+            {{ $t('label.showDetails') }}
           </q-btn>
         </q-item-section>
       </q-item>
     </q-list>
-    <q-dialog v-model="clueDialogueVisible" full-width full-height>
+    <q-dialog v-model="clueDialogueVisible" full-width full-height @hide="onDialogueClose">
       <q-card>
         <q-bar class="bg-primary text-white">
-          Blurb
+          Treasure Item
           <q-space />
           <q-btn dense flat icon="close" v-close-popup>
             <q-tooltip class="bg-white text-primary">Close</q-tooltip>
           </q-btn>
         </q-bar>
-        <q-card-section class="q-pa-md">
-          <VueMarkdown :source="getText(clueText)" class="markdown-view" />
+        <q-card-section class="q-pa-none">
+          <TreasureItemInfo :treasure-item="activeTreasureItem" :base-url="baseUrl" flat />
         </q-card-section>
         <q-card-section class="row justify-center items-center">
           <q-btn v-close-popup class="self-center" color="primary">Close</q-btn>
@@ -53,8 +53,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import VueMarkdown from 'vue-markdown-render';
 
+import TreasureItemInfo from '../components/TreasureItemInfo.vue';
 import ITreasureItem from '../interfaces/ITreasureItem';
 import IFoundTreasureItem from '../interfaces/IFoundTreasureItem';
 import { getText } from '../utils/TextUtils';
@@ -64,7 +64,7 @@ export default defineComponent({
   props: {
     foundItemId: String
   },
-  components: { VueMarkdown },
+  components: { TreasureItemInfo },
   setup () {
     return {
       baseUrl: `${process.env.BASE_URL || ''}`,
@@ -72,7 +72,8 @@ export default defineComponent({
       quest: 'default',
       foundTreasureItems: ref<IFoundTreasureItem[]>([]),
       clueDialogueVisible: ref<boolean>(false),
-      clueText: ref<string | undefined>(undefined)
+      clueText: ref<string | undefined>(undefined),
+      activeTreasureItem: ref<ITreasureItem | undefined>(undefined)
     };
   },
   watch: {
@@ -92,10 +93,11 @@ export default defineComponent({
 
     if (this.foundItemId) {
       await this.addNewItem(this.quest, this.foundItemId);
+      this.onShowClue(this.foundItemId);
     }
   },
   methods: {
-    async loadTreasureItem (quest: string, itemId: string): ITreasureItem {
+    async loadTreasureItem (quest: string, itemId: string): Promise<ITreasureItem> {
       try {
         const response = await this.$api.get(
           `${this.baseUrl}/quests/${quest}/treasures/${itemId}.json`
@@ -136,7 +138,6 @@ export default defineComponent({
           );
 
           if (!exists) {
-            console.log('XXX C', this.foundItemId);
             this.foundTreasureItems.push({
               id: item.id,
               time: new Date(),
@@ -167,12 +168,18 @@ export default defineComponent({
         const foundItem = this.foundTreasureItems.find(
           (item) => item.id === treasureId
         );
-        if (foundItem) {
-          this.clueText = foundItem?.item?.clue;
+        if (foundItem?.item) {
+          // this.clueText = foundItem?.item?.clue;
+          this.activeTreasureItem = foundItem?.item;
           this.clueDialogueVisible = true;
         }
       } catch (error) {
         console.log('xxx', error);
+      }
+    },
+    onDialogueClose () {
+      if (this.foundItemId) {
+        this.$router.push(this.$route.path);
       }
     }
   }
