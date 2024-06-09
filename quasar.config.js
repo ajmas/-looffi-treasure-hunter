@@ -12,6 +12,11 @@
 const { configure } = require('quasar/wrappers');
 const path = require('path');
 
+// defaults to '/'
+const baseUrl = process.env.BASE_URL || '/';
+console.log(' Base URL...............', baseUrl);
+console.log('');
+
 module.exports = configure(function (/* ctx */) {
   return {
     eslint: {
@@ -31,9 +36,9 @@ module.exports = configure(function (/* ctx */) {
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
     boot: [
       'i18n',
-      'axios',
       'appConfig',
       'dynAppConfig',
+      'axios',
       'api'
     ],
 
@@ -63,7 +68,7 @@ module.exports = configure(function (/* ctx */) {
         browser: ['es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],
         node: 'node20'
       },
-      appBase: '/looffi-treasure-hunter/',
+      appBase: baseUrl,
       vueRouterMode: 'hash', // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
@@ -81,7 +86,7 @@ module.exports = configure(function (/* ctx */) {
       // distDir
 
       extendViteConf (viteConf) {
-        viteConf.base = '/looffi-treasure-hunter/';
+        viteConf.base = baseUrl;
         return viteConf;
       },
       // viteVuePluginOptions: {},

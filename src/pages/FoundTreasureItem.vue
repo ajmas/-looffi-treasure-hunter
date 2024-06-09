@@ -15,7 +15,7 @@
         </q-item-section>
 
         <q-item-section>
-          {{ getText(foundTreasureItem?.item.name) }}
+          {{ getText(foundTreasureItem?.item?.name) }}
         </q-item-section>
       </q-item>
     </q-list>
@@ -77,7 +77,7 @@ export default defineComponent({
           return response.data as ITreasureItem;
         }
       } catch (error) {
-        console.log('error', error);
+        console.log('error while loading treasure', error);
       }
     },
     async loadTreasureItems (): ITreasureItem {

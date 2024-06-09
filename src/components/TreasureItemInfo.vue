@@ -9,7 +9,10 @@
       </q-avatar>
       <div>{{ itemName }}</div>
     </q-toolbar>
-    <VueMarkdown :source="clueText" class="markdown-view" />
+    <VueMarkdown
+      :source="clueText"
+      class="markdown-view"
+    />
   </q-card>
 </template>
 
@@ -48,6 +51,7 @@ export default defineComponent({
       if (imageUrl && imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
         imageUrl = `${this.baseUrl}${imageUrl}`;
       }
+      imageUrl = imageUrl.replace('//', '/');
       return imageUrl;
     }
   }

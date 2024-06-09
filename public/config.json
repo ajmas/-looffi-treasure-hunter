@@ -1,4 +1,5 @@
 {
   "appName": "Loofi Treeasure Hunter",
-  "apiUrl": "/"
+  "apiUrl": "/",
+  "baseUrl": "/"
 }

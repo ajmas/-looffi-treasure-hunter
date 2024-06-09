@@ -23,7 +23,7 @@ class TreasureItemService {
         return response.data as ITreasureItem;
       }
     } catch (error) {
-      console.log('error', error);
+      console.log('error while loading treasure', error);
     }
   }
 

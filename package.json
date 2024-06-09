@@ -6,8 +6,8 @@
   "author": "Andre-John Mas <andrejohn.mas@gmail.com>",
   "private": true,
   "scripts": {
-    "lint": "eslint --ext .js,.ts,.vue ./",
-    "lint:fix": "eslint --fix --ext .js,.ts,.vue ./",
+    "lint": "eslint -c --ext .js,.ts,.vue src",
+    "lint:fix": "eslint --fix --ext .js,.ts,.vue src",
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
     "build": "quasar build"

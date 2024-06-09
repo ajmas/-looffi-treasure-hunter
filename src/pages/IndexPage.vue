@@ -68,6 +68,7 @@ export default defineComponent({
   setup () {
     return {
       baseUrl: `${process.env.BASE_URL || ''}`,
+      apiUrl: `${process.env.BASE_URL || ''}`,
       defaultLocale: 'en',
       quest: 'default',
       foundTreasureItems: ref<IFoundTreasureItem[]>([]),
@@ -84,6 +85,9 @@ export default defineComponent({
     }
   },
   async mounted () {
+    this.baseUrl = this.$appConfig.baseUrl;
+    this.apiUrl = this.$appConfig.apiUrl;
+
     const data = localStorage.getItem(`foundTreasure.${this.quest}`);
     if (data) {
       this.foundTreasureItems = JSON.parse(data);
@@ -100,7 +104,7 @@ export default defineComponent({
     async loadTreasureItem (quest: string, itemId: string): Promise<ITreasureItem> {
       try {
         const response = await this.$api.get(
-          `${this.baseUrl}/quests/${quest}/treasures/${itemId}.json`
+          `/quests/${quest}/treasures/${itemId}.json`
         );
         if (response.data) {
           const treasureItem = response.data as ITreasureItem;
@@ -158,6 +162,8 @@ export default defineComponent({
       if (imageUrl && imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
         imageUrl = `${this.baseUrl}${imageUrl}`;
       }
+      imageUrl = imageUrl.replace('//', '/');
+
       return imageUrl;
     },
     getText (text: i18nString) {
@@ -174,7 +180,7 @@ export default defineComponent({
           this.clueDialogueVisible = true;
         }
       } catch (error) {
-        console.log('xxx', error);
+        console.error('error while showing clue', error);
       }
     },
     onDialogueClose () {
