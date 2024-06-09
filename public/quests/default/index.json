@@ -12,5 +12,7 @@
     "en": "Acme Sisters [en]",
     "fr": "Acme Sisters [fr]"
   },
-  "organiserUrl": ""
+  "organiserUrl": "",
+  "totalTreasures": 3,
+  "treasuresNeeded": 3
 }

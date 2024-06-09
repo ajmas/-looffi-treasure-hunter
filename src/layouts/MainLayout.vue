@@ -6,7 +6,7 @@
           <q-avatar>
             <img :src="`${this.baseUrl}/images/Treasure-Chest.512.png`" />
           </q-avatar>
-          Loofi Treasure Hunter
+          {{ title }}
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -18,15 +18,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
   name: 'MainLayout',
 
   setup () {
     return {
+      title: ref<string>('Loofi Treasure Hunter'),
       baseUrl: `${process.env.BASE_URL || ''}` as string
     };
+  },
+  mounted () {
+    this.title = this.$appConfig.appName || this.title;
   }
 });
 </script>
