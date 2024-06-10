@@ -4,5 +4,7 @@
 export default {
   failed: 'Action failed',
   success: 'Action was successful',
-  'label.showDetails': 'Details...'
+  'label.showDetails': 'Details...',
+  'label.totalTreasures': 'Total treasures',
+  'label.close': 'Close'
 };

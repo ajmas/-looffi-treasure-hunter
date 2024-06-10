@@ -1,43 +1,53 @@
 <template>
-  <q-page class="row justify-evenly">
-    <q-list bordered separator class="found-treasure full-width">
-      <q-item
-        v-for="foundTreasureItem in foundTreasureItems"
-        :key="foundTreasureItem.id"
-      >
-        <q-item-section avatar>
-          <q-avatar rounded>
-            <img
-              v-if="foundTreasureItem.item && foundTreasureItem.item.image"
-              :src="getImageUrl(foundTreasureItem.item.image)"
-            />
-          </q-avatar>
-        </q-item-section>
-
-        <q-item-section class="full-width">
-          {{ getText(foundTreasureItem?.item?.name) }}
-        </q-item-section>
-        <q-item-section
-          style="display: flex; align-items: flex-end; justify-content: center"
-        >
-          <q-btn
-            v-if="foundTreasureItem?.item?.clue"
-            @click="onShowClue(foundTreasureItem.id)"
-            size="sm"
-            outline
+  <q-page >
+    <q-card
+      flat
+      class="full-height"
+    >
+      <q-item-section class="row justify-evenly">
+        <q-list bordered separator class="found-treasure full-width">
+          <q-item
+            v-for="foundTreasureItem in foundTreasureItems"
+            :key="foundTreasureItem.id"
           >
-            {{ $t('label.showDetails') }}
-          </q-btn>
-        </q-item-section>
-      </q-item>
-    </q-list>
+            <q-item-section avatar>
+              <q-avatar rounded>
+                <img
+                  v-if="foundTreasureItem.item && foundTreasureItem.item.image"
+                  :src="getImageUrl(foundTreasureItem.item.image)"
+                />
+              </q-avatar>
+            </q-item-section>
+
+            <q-item-section class="full-width">
+              {{ getText(foundTreasureItem?.item?.name) }}
+            </q-item-section>
+            <q-item-section
+              style="display: flex; align-items: flex-end; justify-content: center"
+            >
+              <q-btn
+                v-if="foundTreasureItem?.item?.clue"
+                @click="onShowClue(foundTreasureItem.id)"
+                size="sm"
+                outline
+              >
+                {{ $t('label.showDetails') }}
+              </q-btn>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-item-section>
+      <q-item-section>
+        {{ $t('label.totalTreasures') }} : {{ foundTreasureItems?.length || 0 }} of {{ questInfo?.totalTreasures }}
+      </q-item-section>
+    </q-card>
     <q-dialog v-model="clueDialogueVisible" full-width full-height @hide="onDialogueClose">
       <q-card>
         <q-bar class="bg-primary text-white">
           Treasure Item
           <q-space />
           <q-btn dense flat icon="close" v-close-popup>
-            <q-tooltip class="bg-white text-primary">Close</q-tooltip>
+            <q-tooltip class="bg-white text-primary">{{ $t('label.close') }}</q-tooltip>
           </q-btn>
         </q-bar>
         <q-card-section class="q-pa-none">
@@ -49,7 +59,7 @@
           />
         </q-card-section>
         <q-card-section class="row justify-center items-center">
-          <q-btn v-close-popup class="self-center" color="primary">Close</q-btn>
+          <q-btn v-close-popup class="self-center" color="primary">{{ $t('label.close') }}</q-btn>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -64,6 +74,7 @@ import TreasureItemInfo from '../components/TreasureItemInfo.vue';
 import ITreasureItem from '../interfaces/ITreasureItem';
 import IFoundTreasureItem from '../interfaces/IFoundTreasureItem';
 import { getText } from '../utils/TextUtils';
+import type { i18nString } from '../types/global';
 
 export default defineComponent({
   name: 'IndexPage',
@@ -76,7 +87,8 @@ export default defineComponent({
       baseUrl: `${process.env.BASE_URL || ''}`,
       apiUrl: `${process.env.BASE_URL || ''}`,
       defaultLocale: 'en',
-      quest: 'default',
+      quest: ref<string>('default'),
+      questInfo: ref<IQuest | undefined>(),
       foundTreasureItems: ref<IFoundTreasureItem[]>([]),
       clueDialogueVisible: ref<boolean>(false),
       clueText: ref<string | undefined>(undefined),
@@ -100,7 +112,7 @@ export default defineComponent({
       this.foundTreasureItems = JSON.parse(data);
     }
 
-    await this.loadQuest();
+    await this.loadQuest(this.quest);
     await this.loadTreasureItems();
 
     if (this.foundItemId) {
@@ -110,15 +122,26 @@ export default defineComponent({
   },
   methods: {
     async loadQuest (quest: string): Promise<IQuest | undefined> {
-      try {
-        const response = await this.$api.get(
-          `/quests/${quest}/index.json`
-        );
-        if (response.data) {
-          return response.data as IQuest;
+      const questKey = `quest-${this.quest}`;
+      if (localStorage.getItem(questKey)) {
+        const data = localStorage.getItem(questKey);
+        this.questInfo = JSON.parse(data as string) as IQuest;
+      }
+      if (!this.questInfo) {
+        console.log('iiiuuuu');
+        try {
+          const response = await this.$api.get(
+            `/quests/${quest}/index.json`
+          );
+          console.log('uuuuu', response);
+          if (response.data) {
+            this.questInfo = response.data as IQuest;
+            console.log('iiii', this.questInfo);
+            localStorage.setItem(questKey, JSON.stringify(this.questInfo));
+          }
+        } catch (error) {
+          console.log('error', error);
         }
-      } catch (error) {
-        console.log('error', error);
       }
       return undefined;
     },

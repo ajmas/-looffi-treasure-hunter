@@ -27,6 +27,7 @@ import { defineComponent, ref } from 'vue';
 import ITreasureItem from '../interfaces/ITreasureItem';
 import IFoundTreasureItem from '../interfaces/IFoundTreasureItem';
 import { getText } from '../utils/TextUtils';
+import type { i18nString} from '../types/global';
 
 export default defineComponent({
   name: 'FoundTreasureItem',
@@ -68,7 +69,7 @@ export default defineComponent({
     }
   },
   methods: {
-    async loadTreasureItem (id: string, quest = 'default'): ITreasureItem {
+    async loadTreasureItem (id: string, quest = 'default'): Promise<ITreasureItem | undefined> {
       try {
         const response = await this.$api.get(
           `/quests/${quest}/treasures/${id}.json`
@@ -79,8 +80,9 @@ export default defineComponent({
       } catch (error) {
         console.log('error while loading treasure', error);
       }
+      return undefined;
     },
-    async loadTreasureItems (): ITreasureItem {
+    async loadTreasureItems (): Promise<ITreasureItem[]> {
       const foundTreasureItems = this.foundTreasureItems || [];
       for (let i = 0; i < foundTreasureItems.length; i++) {
         foundTreasureItems[i].item = await this.loadTreasureItem(
@@ -88,6 +90,7 @@ export default defineComponent({
           this.quest
         );
       }
+      return foundTreasureItems;
     },
     getText (text: i18nString) {
       return getText(text, this.$i18n.locale);

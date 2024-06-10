@@ -1,5 +1,9 @@
 {
-  "appName": "Loofi Treeasure Hunter",
+  "appName": {
+    "en": "Looffi Treasure Hunter",
+    "fr": "Looffi chasseur de trésor"
+  },
   "apiUrl": "/",
-  "baseUrl": "/"
+  "baseUrl": "/",
+  "languages": ["en", "fr"]
 }

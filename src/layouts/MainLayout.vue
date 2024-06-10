@@ -8,6 +8,15 @@
           </q-avatar>
           {{ title }}
         </q-toolbar-title>
+        <q-btn
+          v-for="(lang, idx) in languages"
+          :key="idx"
+          class="language-switch"
+          :label="lang"
+          flat
+          :disabled="locale === lang"
+          @click="onSwitchLanguage(lang)"
+        />
       </q-toolbar>
     </q-header>
 
@@ -19,18 +28,34 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import { getText } from '../utils/TextUtils';
+import { availableLanguages, switchLanguage } from '../boot/i18n';
 
 export default defineComponent({
   name: 'MainLayout',
 
   setup () {
     return {
-      title: ref<string>('Loofi Treasure Hunter'),
-      baseUrl: `${process.env.BASE_URL || ''}` as string
+      defaultTitle: ref<string>('Looffi Treasure Hunter'),
+      baseUrl: `${process.env.BASE_URL || ''}` as string,
+      languages: ref<string[]>([])
     };
   },
+  computed: {
+    locale () {
+      return this.$i18n.locale;
+    },
+    title () {
+      return getText(this.$appConfig.appName || this.title, this.$i18n.locale) || this.defaultTitle;
+    }
+  },
   mounted () {
-    this.title = this.$appConfig.appName || this.title;
+    this.languages = availableLanguages;
+  },
+  methods: {
+    onSwitchLanguage (language: string) {
+      switchLanguage(language);
+    }
   }
 });
 </script>
