@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue src",
     "lint:fix": "eslint --fix --ext .js,.ts,.vue src",
-    "test": "echo \"No test specified\" && exit 0",
+    "test": "cross-env yarn run lint && yarn run build",
     "dev": "quasar dev",
     "build": "quasar build",
     "prepare": "husky"
@@ -29,6 +29,7 @@
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
     "autoprefixer": "^10.4.2",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.1",
     "eslint": "^8.11.0",
     "eslint-plugin-vue": "^9.0.0",
