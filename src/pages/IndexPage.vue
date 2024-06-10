@@ -41,7 +41,12 @@
           </q-btn>
         </q-bar>
         <q-card-section class="q-pa-none">
-          <TreasureItemInfo :treasure-item="activeTreasureItem" :base-url="baseUrl" flat />
+          <TreasureItemInfo
+            v-if="activeTreasureItem"
+            :treasure-item="activeTreasureItem"
+            :base-url="baseUrl"
+            flat
+          />
         </q-card-section>
         <q-card-section class="row justify-center items-center">
           <q-btn v-close-popup class="self-center" color="primary">Close</q-btn>
@@ -54,6 +59,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 
+import IQuest from '../interfaces/IQuest';
 import TreasureItemInfo from '../components/TreasureItemInfo.vue';
 import ITreasureItem from '../interfaces/ITreasureItem';
 import IFoundTreasureItem from '../interfaces/IFoundTreasureItem';
@@ -81,6 +87,7 @@ export default defineComponent({
     async foundItemId () {
       if (this.foundItemId) {
         await this.addNewItem(this.quest, this.foundItemId);
+        this.onShowClue(this.foundItemId);
       }
     }
   },
@@ -93,6 +100,7 @@ export default defineComponent({
       this.foundTreasureItems = JSON.parse(data);
     }
 
+    await this.loadQuest();
     await this.loadTreasureItems();
 
     if (this.foundItemId) {
@@ -101,7 +109,20 @@ export default defineComponent({
     }
   },
   methods: {
-    async loadTreasureItem (quest: string, itemId: string): Promise<ITreasureItem> {
+    async loadQuest (quest: string): Promise<IQuest | undefined> {
+      try {
+        const response = await this.$api.get(
+          `/quests/${quest}/index.json`
+        );
+        if (response.data) {
+          return response.data as IQuest;
+        }
+      } catch (error) {
+        console.log('error', error);
+      }
+      return undefined;
+    },
+    async loadTreasureItem (quest: string, itemId: string): Promise<ITreasureItem | undefined> {
       try {
         const response = await this.$api.get(
           `/quests/${quest}/treasures/${itemId}.json`
@@ -124,7 +145,7 @@ export default defineComponent({
       }
       return undefined;
     },
-    async loadTreasureItems (): ITreasureItem {
+    async loadTreasureItems (): Promise<ITreasureItem[]> {
       const foundTreasureItems = this.foundTreasureItems || [];
       for (let i = 0; i < foundTreasureItems.length; i++) {
         foundTreasureItems[i].item = await this.loadTreasureItem(
@@ -132,6 +153,7 @@ export default defineComponent({
           foundTreasureItems[i].id
         );
       }
+      return foundTreasureItems;
     },
     async addNewItem (questId: string, foundItemId: ITreasureItem) {
       if (foundItemId) {
