@@ -224,8 +224,6 @@ export default defineComponent({
             });
 
             this.storeFoundItems();
-
-            this.$forceUpate();
           }
         }
       }
