@@ -10,17 +10,24 @@
             v-for="foundTreasureItem in foundTreasureItems"
             :key="foundTreasureItem.id"
           >
-            <q-item-section avatar>
-              <q-avatar rounded>
+            <q-item-section
+              avatar
+            >
+              <q-avatar
+                size="62px"
+                :color="isClueAnswered(foundTreasureItem) ? 'positive' : undefined"
+              >
                 <img
                   v-if="foundTreasureItem.item && foundTreasureItem.item.image"
                   :src="getImageUrl(foundTreasureItem.item.image)"
+                  class="avatar-icon"
                 />
               </q-avatar>
             </q-item-section>
 
             <q-item-section class="full-width">
-              {{ getText(foundTreasureItem?.item?.name) }}
+              <div class="name">{{ getText(foundTreasureItem?.item?.name) }}</div>
+              <div class="found-time">{{ formatDatTime(foundTreasureItem.time) }}</div>
             </q-item-section>
             <q-item-section
               style="display: flex; align-items: flex-end; justify-content: center"
@@ -41,10 +48,16 @@
         {{ $t('label.totalTreasures') }} : {{ foundTreasureItems?.length || 0 }} of {{ questInfo?.totalTreasures }}
       </q-item-section>
     </q-card>
-    <q-dialog v-model="clueDialogueVisible" full-width full-height @hide="onDialogueClose">
-      <q-card>
+
+    <q-dialog
+      v-model="treasureDialogueVisible"
+      maximized
+      class="q-ma-none"
+      @hide="onDialogueClose"
+    >
+      <q-card class="q-ma-none">
         <q-bar class="bg-primary text-white">
-          Treasure Item
+          {{ $t('label.treasureItem')}}
           <q-space />
           <q-btn dense flat icon="close" v-close-popup>
             <q-tooltip class="bg-white text-primary">{{ $t('label.close') }}</q-tooltip>
@@ -53,9 +66,11 @@
         <q-card-section class="q-pa-none">
           <TreasureItemInfo
             v-if="activeTreasureItem"
-            :treasure-item="activeTreasureItem"
+            :treasure-item="activeTreasureItem.item"
+            :answer="activeTreasureItem.answer"
             :base-url="baseUrl"
             flat
+            @clue-answered="onClueAnswered"
           />
         </q-card-section>
         <q-card-section class="row justify-center items-center">
@@ -75,6 +90,8 @@ import ITreasureItem from '../interfaces/ITreasureItem';
 import IFoundTreasureItem from '../interfaces/IFoundTreasureItem';
 import { getText } from '../utils/TextUtils';
 import type { i18nString } from '../types/global';
+import { ensureDateTime } from '../utils/DateUtils';
+import { DateTime } from 'luxon';
 
 export default defineComponent({
   name: 'IndexPage',
@@ -90,9 +107,10 @@ export default defineComponent({
       quest: ref<string>('default'),
       questInfo: ref<IQuest | undefined>(),
       foundTreasureItems: ref<IFoundTreasureItem[]>([]),
-      clueDialogueVisible: ref<boolean>(false),
+      treasureDialogueVisible: ref<boolean>(false),
       clueText: ref<string | undefined>(undefined),
-      activeTreasureItem: ref<ITreasureItem | undefined>(undefined)
+      activeTreasureItem: ref<IFoundTreasureItem | undefined>(undefined),
+      answers: ref<Record<string, string>>({})
     };
   },
   watch: {
@@ -133,10 +151,8 @@ export default defineComponent({
           const response = await this.$api.get(
             `/quests/${quest}/index.json`
           );
-          console.log('uuuuu', response);
           if (response.data) {
             this.questInfo = response.data as IQuest;
-            console.log('iiii', this.questInfo);
             localStorage.setItem(questKey, JSON.stringify(this.questInfo));
           }
         } catch (error) {
@@ -152,15 +168,17 @@ export default defineComponent({
         );
         if (response.data) {
           const treasureItem = response.data as ITreasureItem;
-          if (treasureItem.clue !== 'string') {
-            const keys = Object.keys(treasureItem.clue);
-            keys.forEach((key) => {
-              treasureItem.clue[key] = treasureItem.clue[key].replace(
-                '![image](/',
-                `![image](${this.baseUrl}/`
-              );
-            });
-          }
+          // if (treasureItem.clue !== 'string') {
+          //   const keys = Object.keys((treasureItem.clue as object));
+          //   keys.forEach((key) => {
+          //     if (treasureItem?.clue) {
+          //       treasureItem.clue[key] = treasureItem.clue[key].replace(
+          //         '![image](/',
+          //         `![image](${this.baseUrl}/`
+          //       );
+          //     }
+          //   });
+          // }
           return treasureItem;
         }
       } catch (error) {
@@ -178,6 +196,18 @@ export default defineComponent({
       }
       return foundTreasureItems;
     },
+    formatDatTime (date: Date) {
+      const datetime = ensureDateTime(date);
+      return datetime?.toLocaleString(DateTime.DATETIME_MED, {
+        locale: this.$i18n.local
+      });
+    },
+    storeFoundItems () {
+      localStorage.setItem(
+        `foundTreasure.${this.quest}`,
+        JSON.stringify(this.foundTreasureItems)
+      );
+    },
     async addNewItem (questId: string, foundItemId: ITreasureItem) {
       if (foundItemId) {
         const item = await this.loadTreasureItem(questId, foundItemId);
@@ -193,10 +223,7 @@ export default defineComponent({
               item
             });
 
-            localStorage.setItem(
-              `foundTreasure.${questId}`,
-              JSON.stringify(this.foundTreasureItems)
-            );
+            this.storeFoundItems();
 
             this.$forceUpate();
           }
@@ -214,15 +241,24 @@ export default defineComponent({
     getText (text: i18nString) {
       return getText(text, this.$i18n.locale);
     },
+    getAnswerFor (treasureItem: ITreasureItem) {
+      return this.answers[treasureItem.id];
+    },
+    isClueAnswered (foundTreasureItem: IFoundTreasureItem): boolean {
+      return !!(
+        foundTreasureItem.answer
+        || (!foundTreasureItem.answer && !foundTreasureItem.item?.answer)
+      );
+    },
     onShowClue (treasureId: string) {
       try {
         const foundItem = this.foundTreasureItems.find(
           (item) => item.id === treasureId
         );
+
         if (foundItem?.item) {
-          // this.clueText = foundItem?.item?.clue;
-          this.activeTreasureItem = foundItem?.item;
-          this.clueDialogueVisible = true;
+          this.activeTreasureItem = foundItem;
+          this.treasureDialogueVisible = true;
         }
       } catch (error) {
         console.error('error while showing clue', error);
@@ -232,7 +268,32 @@ export default defineComponent({
       if (this.foundItemId) {
         this.$router.push(this.$route.path);
       }
+    },
+    onClueAnswered (answer: string) {
+      this.answers[this.activeTreasureItem.id] = answer;
+
+      for (let i =0 ; i < this.foundTreasureItems.length; i++) {
+        if (this.foundTreasureItems[i].item.id === this.activeTreasureItem.id) {
+          this.foundTreasureItems[i].answer = answer;
+        }
+      }
+
+      this.storeFoundItems();
     }
   }
 });
 </script>
+
+<style scoped>
+.found-time {
+  font-size: 80%;
+  color: #444;
+}
+.avatar-icon {
+  padding: 5px;
+}
+.xanswered {
+  border: solid 3px green;
+  border-radius: 50%;
+}
+</style>

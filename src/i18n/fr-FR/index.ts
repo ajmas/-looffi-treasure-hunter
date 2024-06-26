@@ -6,5 +6,8 @@ export default {
   success: 'l\'action a reussi',
   'label.showDetails': 'Details...',
   'label.totalTreasures': 'Trésors totaux',
-  'label.close': 'Fermer'
+  'label.close': 'Fermer',
+  'label.answer': 'Reponse',
+  'label.submit': 'Soumettre',
+  'label.treasureItem': 'Treasure Item'
 };

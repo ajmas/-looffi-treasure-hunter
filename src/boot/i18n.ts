@@ -28,7 +28,7 @@ const quasarLocales: Record<string, string> = {
 };
 
 const langModules = import.meta.glob('../../node_modules/quasar/lang/(en-GB|en-US|fr).js');
-let i18n: I18n;
+let i18n: I18n<typeof messages, Record<string, never>, Record<string, never >, 'en-US', false>;
 const availableLanguages = Object.keys(messages);
 
 function setQuasarLocale (locale: string) {

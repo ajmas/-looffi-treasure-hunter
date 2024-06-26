@@ -10,14 +10,52 @@
       <div>{{ itemName }}</div>
     </q-toolbar>
     <VueMarkdown
-      :source="clueText"
+      v-if="clue"
+      :source="clue"
       class="markdown-view"
     />
+    <q-card
+      v-if="expectedAnswer"
+      bordered
+      class="q-ma-sm"
+    >
+      <q-input
+        v-if="expectedAnswer !== answer"
+        v-model:model-value="answerInput"
+        :label="$t('label.answer')"
+        dense
+        outlined
+        class="q-ma-md"
+      />
+      <div
+        v-if="expectedAnswer === answer"
+        class="q-ma-md q-pa-xs"
+      >
+        <span>{{ $t('label.answer') }} : </span>&nbsp;
+        <span>{{ answer  }}</span>
+      </div>
+      <q-btn
+        v-if="expectedAnswer !== answer"
+        :label="$t('label.submit')"
+        color="primary"
+        class="q-ma-md"
+        @click="onSubmitAnswer"
+      />
+      <div
+        v-if="expectedAnswer === answer"
+        class="treasure"
+      >
+        <VueMarkdown
+          :source="treasure"
+          class="markdown-view"
+        />
+      </div>
+    </q-card>
   </q-card>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, PropType, ref } from 'vue';
 import ITreasureItem from '../interfaces/ITreasureItem';
 import { getText } from '../utils/TextUtils';
 import VueMarkdown from 'vue-markdown-render';
@@ -29,9 +67,27 @@ export default defineComponent({
       type: Object as PropType<ITreasureItem>,
       required: true
     },
-    baseUrl: String
+    answer: {
+      type: String,
+      default: undefined
+    },
+    baseUrl: {
+      type: String,
+      default: undefined
+    }
   },
+  emits: ['clue-answered'],
   components: { VueMarkdown },
+  setup () {
+    return {
+      answerInput: ref<string>('')
+    };
+  },
+  watch: {
+    answer () {
+      this.currentInput = this.answer || '';
+    }
+  },
   computed: {
     itemName (): string {
       if (this.treasureItem?.name)  {
@@ -39,12 +95,27 @@ export default defineComponent({
       }
       return '';
     },
-    clueText (): string {
+    clue (): string {
       if (this.treasureItem?.clue)  {
         return getText(this.treasureItem.clue, this.$i18n.locale);
       }
       return '';
+    },
+    expectedAnswer (): string {
+      if (this.treasureItem?.answer)  {
+        return getText(this.treasureItem.answer, this.$i18n.locale);
+      }
+      return '';
+    },
+    treasure (): string {
+      if (this.treasureItem?.treasure)  {
+        return getText(this.treasureItem.treasure, this.$i18n.locale);
+      }
+      return '';
     }
+  },
+  mounted () {
+    this.currentInput = this.answer || '';
   },
   methods: {
     getImageUrl (imageUrl: string) {
@@ -53,6 +124,11 @@ export default defineComponent({
       }
       imageUrl = imageUrl.replace('//', '/');
       return imageUrl;
+    },
+    onSubmitAnswer () {
+      if (this.answerInput === this.expectedAnswer) {
+        this.$emit('clue-answered', this.answerInput);
+      }
     }
   }
 });

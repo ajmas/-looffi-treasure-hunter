@@ -10,6 +10,10 @@ const routes: RouteRecordRaw[] = [
       props: (route) => ({
         foundItemId: route.query.item
       })
+    }, {
+      path: '/about',
+      component: () => import('pages/AboutPage.vue'),
+      props: true
     }]
   },
 

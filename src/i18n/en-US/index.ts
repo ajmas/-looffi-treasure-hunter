@@ -6,5 +6,8 @@ export default {
   success: 'Action was successful',
   'label.showDetails': 'Details...',
   'label.totalTreasures': 'Total treasures',
-  'label.close': 'Close'
+  'label.close': 'Close',
+  'label.answer': 'Answer',
+  'label.submit': 'Submit',
+  'label.treasureItem': 'Treasure Item'
 };
