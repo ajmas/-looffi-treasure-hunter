@@ -20,7 +20,7 @@
       class="q-ma-sm"
     >
       <q-input
-        v-if="expectedAnswer !== answer"
+        v-if="!isAnsweredCorrectly"
         v-model:model-value="answerInput"
         :label="$t('label.answer')"
         dense
@@ -28,21 +28,21 @@
         class="q-ma-md"
       />
       <div
-        v-if="expectedAnswer === answer"
+        v-if="isAnsweredCorrectly"
         class="q-ma-md q-pa-xs"
       >
         <span>{{ $t('label.answer') }} : </span>&nbsp;
         <span>{{ answer  }}</span>
       </div>
       <q-btn
-        v-if="expectedAnswer !== answer"
+        v-if="isAnsweredCorrectly"
         :label="$t('label.submit')"
         color="primary"
         class="q-ma-md"
         @click="onSubmitAnswer"
       />
       <div
-        v-if="expectedAnswer === answer"
+        v-if="isAnsweredCorrectly"
         class="treasure"
       >
         <VueMarkdown
@@ -112,6 +112,9 @@ export default defineComponent({
         return getText(this.treasureItem.treasure, this.$i18n.locale);
       }
       return '';
+    },
+    isAnsweredCorrectly () {
+      return (this.expectedAnswer || '').toLowerCase() !== (this.answer || '').toLowerCase();
     }
   },
   mounted () {
@@ -126,7 +129,7 @@ export default defineComponent({
       return imageUrl;
     },
     onSubmitAnswer () {
-      if (this.answerInput === this.expectedAnswer) {
+      if (this.isAnsweredCorrectly) {
         this.$emit('clue-answered', this.answerInput);
       }
     }
