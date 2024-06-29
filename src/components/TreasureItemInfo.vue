@@ -133,8 +133,8 @@ export default defineComponent({
     getImageUrl (imageUrl: string) {
       if (imageUrl && imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
         imageUrl = `${this.baseUrl}${imageUrl}`;
+        imageUrl = imageUrl.replace('//', '/');
       }
-      imageUrl = imageUrl.replace('//', '/');
       return imageUrl;
     },
     onSubmitAnswer () {
