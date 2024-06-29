@@ -19,6 +19,12 @@
       bordered
       class="q-ma-sm"
     >
+      <div
+        v-if="errorMessage"
+        class="message text-negative"
+      >
+        {{ errorMessage }}
+      </div>
       <q-input
         v-if="!isAnsweredCorrectly"
         v-model:model-value="answerInput"
@@ -34,13 +40,15 @@
         <span>{{ $t('label.answer') }} : </span>&nbsp;
         <span>{{ answer  }}</span>
       </div>
+
       <q-btn
-        v-if="isAnsweredCorrectly"
+        v-if="!isAnsweredCorrectly"
         :label="$t('label.submit')"
         color="primary"
         class="q-ma-md"
         @click="onSubmitAnswer"
       />
+
       <div
         v-if="isAnsweredCorrectly"
         class="treasure"
@@ -80,12 +88,13 @@ export default defineComponent({
   components: { VueMarkdown },
   setup () {
     return {
-      answerInput: ref<string>('')
+      answerInput: ref<string>(''),
+      errorMessage: ref<string>('')
     };
   },
   watch: {
     answer () {
-      this.currentInput = this.answer || '';
+      this.answerInput = this.answer || '';
     }
   },
   computed: {
@@ -114,7 +123,7 @@ export default defineComponent({
       return '';
     },
     isAnsweredCorrectly () {
-      return (this.expectedAnswer || '').toLowerCase() !== (this.answer || '').toLowerCase();
+      return (this.expectedAnswer || '').toLowerCase() === (this.answer || '').toLowerCase();
     }
   },
   mounted () {
@@ -129,8 +138,10 @@ export default defineComponent({
       return imageUrl;
     },
     onSubmitAnswer () {
-      if (this.isAnsweredCorrectly) {
+      if ((this.expectedAnswer || '').toLowerCase() === (this.answerInput || '').toLowerCase()) {
         this.$emit('clue-answered', this.answerInput);
+      } else {
+        this.errorMessage = this.$t('error.incorrectAnswer');
       }
     }
   }

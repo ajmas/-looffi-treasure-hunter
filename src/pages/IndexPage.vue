@@ -66,7 +66,7 @@
         <q-card-section class="q-pa-none">
           <TreasureItemInfo
             v-if="activeTreasureItem"
-            :treasure-item="activeTreasureItem.item"
+            :treasure-item="activeTreasureItem.item as ITreasureItem"
             :answer="activeTreasureItem.answer"
             :base-url="baseUrl"
             flat
@@ -231,8 +231,8 @@ export default defineComponent({
     getImageUrl (imageUrl: string) {
       if (imageUrl && imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
         imageUrl = `${this.baseUrl}${imageUrl}`;
+        imageUrl = imageUrl.replace('//', '/');
       }
-      imageUrl = imageUrl.replace('//', '/');
 
       return imageUrl;
     },

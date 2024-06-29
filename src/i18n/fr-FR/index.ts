@@ -9,5 +9,6 @@ export default {
   'label.close': 'Fermer',
   'label.answer': 'Reponse',
   'label.submit': 'Soumettre',
-  'label.treasureItem': 'Treasure Item'
+  'label.treasureItem': 'Treasure Item',
+  'error.incorrectAnswer': 'Réponse incorrecte'
 };
