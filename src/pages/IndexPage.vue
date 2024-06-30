@@ -146,7 +146,6 @@ export default defineComponent({
         this.questInfo = JSON.parse(data as string) as IQuest;
       }
       if (!this.questInfo) {
-        console.log('iiiuuuu');
         try {
           const response = await this.$api.get(
             `/quests/${quest}/index.json`
@@ -289,9 +288,5 @@ export default defineComponent({
 }
 .avatar-icon {
   padding: 5px;
-}
-.xanswered {
-  border: solid 3px green;
-  border-radius: 50%;
 }
 </style>

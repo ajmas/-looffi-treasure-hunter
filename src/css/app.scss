@@ -22,14 +22,14 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .main-layout {
-    background-color: black;
-    color: white;
-  }
-  .q-page, .q-card {
-    background-color: black;
-    color: white;
-  }
+  // .main-layout {
+  //   background-color: black;
+  //   color: white;
+  // }
+  // .q-page, .q-card {
+  //   background-color: black;
+  //   color: white;
+  // }
   .q-list--separator > .q-item-type + .q-item-type {
     border-top: solid 1px rgb(128, 128, 128);
   }
