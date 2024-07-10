@@ -1,5 +1,8 @@
 <template>
-  <q-page style="min-height: 400px">
+  <q-page
+    style="min-height: 400px"
+    class="q-pa-xs"
+  >
     <h1>Looffi Treasure Hunter</h1>
     <div>
       <p>
