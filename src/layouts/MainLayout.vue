@@ -23,6 +23,14 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <div class="info">
+      <q-btn
+        icon="info"
+        flat
+        :to="{ name: 'AboutPage' }"
+      />
+    </div>
   </q-layout>
 </template>
 
@@ -59,3 +67,11 @@ export default defineComponent({
   }
 });
 </script>
+
+<style>
+.info {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+}
+</style>

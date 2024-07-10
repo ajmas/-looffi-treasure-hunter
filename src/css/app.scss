@@ -21,6 +21,15 @@
   }
 }
 
+h1 {
+  font-size: 42px;
+  line-height: initial;
+}
+
+a {
+  color: $primary;
+}
+
 @media (prefers-color-scheme: dark) {
   // .main-layout {
   //   background-color: black;
